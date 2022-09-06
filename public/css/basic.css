@@ -1,0 +1,139 @@
+
+/* Global Styles & Colors */
+  :root {
+    --color-header-background: #205a12;
+    --color-header-text: white;
+    --color-header-hightlight: #4a5c96;
+    --color-background: white;
+    --color-footer-background: #205a12;
+    --color-footer-text: white;
+    
+
+  }
+
+  /*
+  new pallete 
+#393232
+#59A52C
+#544a4a
+#1e1a1a
+#6fca3a
+
+  */
+
+  html {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    height:100%;
+    width:100%;
+    background-color: var(--color-background);
+    overflow-y: hidden; /* Prevent scrollbar appearing on page transition */
+
+
+  }
+
+  .width-wide {
+    max-width: 768px;
+    width:100%;
+  }
+  .width-mid {
+    max-width: 640px;
+    width:100%;
+
+  }
+
+  .flexbox-row {
+    display:flex;
+    flex-direction:row; 
+  }
+
+  .flexbox-col {
+    display:flex;
+    flex-direction:column;         
+  }
+
+  .fb-start { justify-content:flex-start; }
+  .fb-center { justify-content:center; }
+  .fb-between { justify-content:space-between; }
+  .fb-right {   justify-content:right; }
+  .fb-x-stretch { align-items:stretch; }
+  .fb-x-center { align-items:center; }
+  .fb-nowrap { flex-wrap: nowrap;}
+  .flex-no{ flex:0 0 0px; }
+  .flex-1 { flex:1 1 0rem; }
+  .flex-2 { flex:2 2 0rem; }
+  .flex-3 { flex:3 3 0rem; }
+
+  .height-full { height:100%; }
+  .width-full { width:100%; } 
+  .center-text { text-align: center; }
+  
+
+
+/* specific */
+  #root{}
+
+  /* level 1 */
+  #header{
+    /*flex-basis: 2.5rem;*/
+    background-color:var(--color-header-background);
+    color:var(--color-header-text);
+  }
+
+  #headerContent{ }
+
+  .header-title {
+    padding:0;
+    margin:0rem 2rem 0.2rem 0.5rem;
+    font-size:3rem;
+    font-family:arial;
+    font-weight: 500;
+    
+
+  }
+
+  
+  .header-title-highlight {
+    color:var(--color-header-hightlight);
+    font-weight: 600;
+
+  }
+
+  #header svg{
+    padding:0 0.25rem;
+    margin:0;
+  }
+
+
+  #content{
+
+  
+   }
+
+
+  #footer{
+    flex-basis: 2rem;
+    background-color:var( --color-footer-background);
+    color:var(--color-footer-text);
+  }
+
+
+
+
+
+  .btnInfo, .btnStats, .btnHelp, .btnLove, .btnStats, .btnPlay, .btnSupport {
+    cursor:pointer;
+  }
+
+
+  
+  /*
+  .hl1 { border: solid 2px lightcoral }
+  .hl2 { border: solid 2px orange}
+  .hl3 { border: solid 2px lightgreen}
+  .hl4 { border: solid 2px lightblue}
+*/

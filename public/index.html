@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+      
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+       
+        <meta name="description" content="Daily bird guessing game">
+        <meta property="og:title" content="Birdle">
+        <meta property="og:description" content="The daily bird guessing game">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://birdle.isnow.online">
+        <meta property="og:image" content="https://birdle..isnow.online/og.png">
+      
+        <meta name="theme-color" content="#121212">
+      
+        <meta name="apple-mobile-web-app-title" content="Birdle">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+      
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest">
+  
+    
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://w.soundcloud.com/player/api.js" type="text/javascript"></script>
+        
+        <script src="script/script.js"></script>
+        <script src="script/game.js"></script>
+        <script src="script/autocomplete.js"></script>
+
+        <link rel="stylesheet" href='css/basic.css' />     
+        <link rel="stylesheet" href='css/overlays.css' />     
+        <link rel="stylesheet" href='css/game.css' />
+        <link rel="stylesheet" href='css/autocomplete.css' />
+
+
+        <!-- additional fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=PT+Sans&display=swap" rel="stylesheet">
+
+        <title>Birdle - The daily bird guessing game</title>
+      </head>
+
+
+
+<body>
+  
+  <!-- main content -->
+  <div id="root" class="flexbox-col height-full ">
+
+    <div id="header" class="flex-none flexbox-row fb-center">
+
+        <div id="headerContent" class="width-wide flexbox-row fb-x-center">
+            <div class="hl1 flex-1" ></div>
+             <div class="hl2 header-title center-text ">Bird<span class="header-title-highlight">le</span></div>
+             <div class="hl3 flex-1 flexbox-row fb-right">
+                 <svg class="btnInfo" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                 <svg class="btnLove" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                 <svg class="btnHelp" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                 <svg class="btnStats" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+             </div>
+        </div>
+        
+    </div>
+
+    <div id="content" class="flex-1 flexbox-col fb-x-center">
+
+        <div id="game" class="flex-1 width-mid flexbox-col">
+                
+            <div id="gamecontent" class="hl1 flex-none flexbox-row fb-center">
+     
+                <img src="og.png">
+
+            </div>
+
+            <div id="guesses" class="hl2 flex-none flexbox-row fb-center">
+              <div id="guessWrapper" class="hl1"></div>
+
+            </div>
+
+            <div id="search" class="hl3 flex-none flexbox-row fb-center">
+              <div id="searchWrapper" class="flex-1">
+                <input id="txtGuess" type="search" spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="off" placeholder="Search for bird...">
+              </div>
+            </div>
+               
+            <div id="buttons" class="hl4 flex-none flexbox-row">
+              <div id="buttonsWrapper" class="h12 flex-1 flexbox-row fb-between">
+                <input  type="button" value="Skip" id="btnSkipGuess">
+                <input  type="button" value="Guess" id="btnSubmitGuess">
+              </div>
+
+            </div>
+
+            <div id="summary" class="hl4 flex-none flexbox-row fb-center hidden">
+              <div id="summaryWrapper" class="hl1 flex-1 flexbox-col fb-x-center">
+                <div class="summary-gamenumber"></div>
+                <div class="summary-trackname"></div>
+                <div class="summary-scoresummary"></div>
+                <div class="summary-message"></div>
+                <div class="summary-share">
+                  <button class="btnShare">Share
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                  </button>
+                </div>
+             
+                <div class="summary-stats btnStats" >
+                  <div>Stats</div>
+                  <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  </div>
+                </div>
+     
+                <div class="summary-countdownmessage"></div>
+                <div class="summary-countdown"></div>
+                <div class="summary-support">
+                  Enjoying Birdle? Please...
+                  <input type="button" value="Support Us" class="btnLove btnSupport">
+                </div>
+
+              </div>
+            </div>
+
+            <!--
+            <div id="spacer" class="hl2 flex-2">spacer</div>
+            -->
+            
+
+        </div>
+            
+    </div>
+
+    <div id="footer" class="flex-none"></div>
+  </div>
+
+
+    
+
+    <!-- Overlay - Help -->
+    <div id="overlay_help" class="overlay-wrapper hidden">
+      <div class="overlay-innerwrap">
+
+        <div class="overlay-header">
+
+          <div class="overlay-title">How To Play</div>
+          <div class="overlay-close">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </div>
+        </div>
+        <div class="overlay-body flexbox-col">
+          <div>- Guess the bird</div>
+          <div>- If you guess wrong or skip then we'll give you more clues.</div>
+          <div>- Try to get the answer in as few guesses as possible then share your score!</div>
+          <div><input type="button" value="Play" class="btnPlay"></div>
+        </div>
+
+      </div>
+  </div>
+
+  <!-- Overlay - Stats -->
+  <div id="overlay_stats" class="overlay-wrapper hidden">
+    <div class="overlay-innerwrap">
+
+      <div class="overlay-header">
+
+        <div class="overlay-title">Stats</div>
+        <div class="overlay-close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+      </div>
+
+      <div class="overlay-body"></div>
+        <div class="stats-wrapper"></div>
+        <div class="stats-chart"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Overlay - Info -->
+  <div id="overlay_info" class="overlay-wrapper hidden">
+    <div class="overlay-innerwrap">
+
+      <div class="overlay-header">
+
+        <div class="overlay-title">Info</div>
+        <div class="overlay-close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+      </div>
+
+      <div class="overlay-body">
+        <div>Welcome to Birdle.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Overlay - Love -->
+  <div id="overlay_love" class="overlay-wrapper hidden">
+    <div class="overlay-innerwrap">
+
+      <div class="overlay-header">
+
+        <div class="overlay-title">Love</div>
+        <div class="overlay-close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+      </div>
+      
+      <div class="overlay-body  flexbox-col fb-x-center">
+        <div>Enjoying Birdle? Please support us, or just buy us a coffee to help us make more fun apps :)</div>
+        <div>
+          <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
+          <script type='text/javascript'>kofiwidget2.init('Support Us on Ko-fi', '#29abe0', 'M4M4D8H7M');kofiwidget2.draw();</script> 
+        </div>   
+      </div>
+
+    </div>
+  </div>
+
+
+
+</body>
+</html>
