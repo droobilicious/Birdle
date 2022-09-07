@@ -1,28 +1,9 @@
-let debugMode = false;
+let debugMode = true;
 
 if (debugMode === false){ 
     console.log = function() {}
 }
 
-
-// Calculate width of text
-function textWidth(text, fontFamily, fontSize) {
-    let ele = document.body;
-   // ele = $('#lyricsContent');
-    let t = $( '<span>' ) //.hide()
-                        .html(text)
-                        .css({'font-family' : fontFamily,
-                               'font-size' : fontSize
-                            })
-                        .css('display', 'inline-block')
-                        .prependTo(ele);
-
-                    
-    let w = t.width();
-    t.remove();
-    return w;
-
-}
 
 
 // * arrow functions would preserve this scope below
@@ -30,14 +11,15 @@ function textWidth(text, fontFamily, fontSize) {
 
 // Game code
 var game = {
-    gameConfig : null,   //config from constructor
-    gameData : null,  //lyrics and song info
-    gameState : null,  //info about the game state
+    gameConfig : null,   //settings passed to the constructor
+    gameData : null,  //data for this individual days game /config
+    gameState : null,  //info about the game state, previous guesses, whether the game has been finished etc
+    gameName : "Birdle",
+    gameURL : "https://birdle.isnow.online",
+    imageBasePath : "gameimages/",
     stats : null,
     currentGuess : 0, 
     maxGuesses : 5,
-    linesToUse : 5,
-    linesToReveal : 1,
     start : function(config){
         console.log("Running start()");
         let _this = this;
@@ -65,19 +47,24 @@ var game = {
             _this.saveGameState();
             _this.displayStats();
            
+            //see if game was already finished
             if (_this.gameState.hasFinished === true){
                 //the game was already completed
                 _this.showCompletedPage();
-                _this.displayLyrics(true);
+
+                //display full image
+                _this.displayCanvas();
             }
-            else{
+            //game was not finished partial game
+            else{  
                 
                 _this.currentGuess = _this.gameState.guessList.length;
                 if (_this.currentGuess >= _this.maxGuesses-1){
                     $( _this.gameConfig.skipButtonSelector ).val("Give Up");
                 }
 
-                _this.displayLyrics();
+                //display image so far
+                _this.displayCanvas();
                 _this.displayGuesses();
 
             }
@@ -88,7 +75,7 @@ var game = {
     
 
     },
-    // Load game configuration data (JSON of artist, song, lyrics etc)
+    // Load game configuration data (JSON)
     loadGameData : function(){
         console.log("Running getGameData");
         let _this = this;
@@ -177,129 +164,63 @@ var game = {
         localStorage.setItem( this.gameConfig.localStorageName, JSON.stringify(gameHistory) );
 
     },
-    getLines : function(getAll=null){
-        console.log("Running getLines");
-
-        //** cut out double lines if not getting all */
-        if (getAll === true){
-            return this.gameData.Lyrics.split(/\r|\\r/)
-                                       .filter( (line => line.trim().length > 0) );
-        }else{
-            return this.gameData.Lyrics.split(/\r|\\r/)
-                                       .filter((line => line.trim().length > 0))
-                                       .slice(0, this.linesToUse);
-        }
-
-    },
-    /*
-    Figure out the font size requried to hit a certain max width
-    */
-    getLyricsFontSize : function(widthLimit=280){
-
-        let fontStyle = "Italic 'Noto Sans Mono', sans-serif";
-        let fontSize = 20; 
-        let fontUnit = "px"
-        //let widthLimit = 280;
-     
-        let text = this.getLines(true).join("<br>")
-        let iterations = 2;
-
-        for (i=0;i<iterations;i++)
-        {
-            let maxWidth = textWidth( text , fontStyle, (fontSize + fontUnit));
-            let misedByRatio = widthLimit/maxWidth;
-            console.log(i + ": " + fontSize +  " maxWidth " + maxWidth + " widthLimit: " + widthLimit + " misedByRatio: " + misedByRatio);
-            fontSize = fontSize * misedByRatio;
-            //$('#footer').html("widthLimit: " + widthLimit + "maxWidth: " + maxWidth + " font size:" + fontSize  + fontUnit);
-        }
-      
-        console.log("Will use font size " + fontSize);
-        return fontSize.toFixed(2) + fontUnit;
-
-
-    },
-    displayLyrics : function(showAll=false){
-        console.log("Running displayLyrics");
+    displayCanvas : function(){
+        console.log("Running displayCanvas");
         let _this = this;
 
-        let revealCount = this.linesToReveal + this.currentGuess;
-        let lines = this.getLines(showAll);
-        let fontFamily = "'Noto Sans Mono', sans-serif";
-    
-        //scaling of the fonts is not working correctly.
-        //using this as workaround
-        let isMobile = ( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) );
-        let availableWidth = (isMobile) ? 250 : 350;
-        //let let availableWidth = $( '#lyricsWrapper' ).width();
 
-        let fontSize = this.getLyricsFontSize(availableWidth);
-        let spaceWidth = textWidth("x", fontFamily,  fontSize);     //$.fn.textWidth("x", fontStyle);
-        console.log("spaceWidth: " + spaceWidth);
-
-
-        $( this.gameConfig.lyricsSelector ).empty(); //clear any existing
-
-       // const boxes = document.getElementById('#lyricsWrapper');
-        //const result = boxes.getBoundingClientRect()
-        // let availableWidth2 =  $( '#lyricsWrapper' ).getBoundingClientRect().width;
-        //alert( );
+        //load image if not already loaded
+        let FullImagePath = this.imageBasePath + this.gameData.image
+        console.log("Loading image " +  FullImagePath)
+        var image = new Image();
         
+     
 
-        $.each(lines, function(lineindex, line) {
+        image.onload = function(){
+            console.log("The image was loaded");
+            let numColsToCut = 3;
+            let numRowsToCut = 2
+            console.log("Image width: " + this.width);
 
-            //add full line for debug (getting styling right)
-            //$('<div>').text(line).addClass('lyric-line').appendTo( _this.gameConfig.lyricsSelector );  //debug
+            let widthOfOnePiece = this.width / numColsToCut;
+            let heightOfOnePiece = this.height / numRowsToCut;
 
+            var imagePieces = [];
+            for(var x = 0; x < numColsToCut; ++x) {
+                for(var y = 0; y < numRowsToCut; ++y) {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = widthOfOnePiece;
+                    canvas.height = heightOfOnePiece;
+                    var context = canvas.getContext('2d');
+                    //draw image with offset
+                    context.drawImage(image, x * widthOfOnePiece, y * heightOfOnePiece, widthOfOnePiece, heightOfOnePiece, 0, 0, canvas.width, canvas.height);
+                    imagePieces.push(canvas.toDataURL());
+                }
+            }
+
+
+            // load one piece onto the page
+            console.log("loading image piece " + imagePieces[0]);
+
+            $( _this.gameConfig.gameCanvasSelector ).css( {
+                'display' : 'inline-grid',
+                'grid-gap': '1px',
+                'grid-template-columns' : 'repeat(' + numColsToCut + ', 1fr)'
+            });
             
-            if (lineindex < revealCount || showAll === true)
-            {
-                //show the actual lyrics
-
-                if (line == ""){ line = " "} //need to check if lyrics do have double lines
-                $('<div>')
-                    .text(line)
-                    .addClass('lyric-line')
-                    .css({'font-family' : fontFamily, 'font-size' : fontSize })
-                    .appendTo( _this.gameConfig.lyricsSelector );
-            }
-           
-            else{
-                 //show a masked version of the lyric
-                let words = line.split(' ');
-                
-                let newLineDiv = $('<div>')
-                            .addClass('lyric-line')
-                            .css({'font-family' : fontFamily, 'font-size' : fontSize })
-                            .appendTo( _this.gameConfig.lyricsSelector );
-
-                //console.log("words:" + words.length)
-                $.each(words, function(wordindex, word) {
-                              
-                    let calcWidth =  textWidth(word, fontFamily,  fontSize);   //$.fn.textWidth(word, fontStyle);
-
-                    $('<div>')
-                            .addClass('word-masked')
-                            .text("‎")
-                            .css({'font-family' : fontFamily, 'font-size' : fontSize })
-                            .width(calcWidth )
-                            .appendTo(newLineDiv);
-                    
-                    //if there's going to be another word then add a space 
-                    if (wordindex < words.length -1){
-
-                        $('<div>')
-                            .addClass('space-masked')
-                            .text(" ")
-                            .width(spaceWidth)
-                            .appendTo(newLineDiv);
-                    }
-        
-                });
-            }
-        });
+            $( "<img>" ).attr("src", imagePieces[0]).appendTo(  _this.gameConfig.gameCanvasSelector );
+            $( "<img>" ).attr("src", imagePieces[2]).appendTo(  _this.gameConfig.gameCanvasSelector );
+            $( "<img>" ).attr("src", imagePieces[4]).appendTo(  _this.gameConfig.gameCanvasSelector );
+            $( "<img>" ).attr("src", imagePieces[1]).appendTo(  _this.gameConfig.gameCanvasSelector );
+            $( "<img>" ).attr("src", imagePieces[3]).appendTo(  _this.gameConfig.gameCanvasSelector );
+            $( "<img>" ).attr("src", imagePieces[5]).appendTo(  _this.gameConfig.gameCanvasSelector );
+        };
 
 
-       
+        image.src = FullImagePath;
+
+
+
 
 
     },
@@ -348,24 +269,12 @@ var game = {
             thisGuess.status = "skipped";
             newClass = 'guess-bg-skipped';
         }
-        else if (guess == this.gameData.FullTrackName) //correct guess
+        else if (guess == this.gameData.answer) //correct guess
         {
             thisGuess.status  = "correct";
             this.gameState.hasWon = true;
             this.gameState.score = this.currentGuess + 1;
             newClass = 'guess-bg-correct';
-
-        }
-        else if (guess.startsWith(this.gameData.Artist + " - ")) //partially correct guess
-        {
-            thisGuess.status = "partcorrect";
-            newClass = 'guess-bg-partcorrect';
-
-            let remainingText = guess.substr( this.gameData.Artist.length + 3, guess.length - (this.gameData.Artist.length + 3) );
-            console.log("full len: " + this.gameData.FullTrackName.length);
-            console.log("Remaining text: " + remainingText);
-            displayText = "<span class='guess-partcorrect'>" + this.gameData.Artist + "</span> - "  + remainingText;
-                        
 
         }
         else{ //incorrect guess
@@ -394,7 +303,8 @@ var game = {
             
             this.saveGameState();
             this.showCompletedPage();
-            this.displayLyrics(true);
+            //display the full image
+
             this.displayStats();
             this.onComplete(); 
 
@@ -402,13 +312,11 @@ var game = {
 
             this.saveGameState();
 
-            //reveal a new line
-            $( this.gameConfig.lyricsSelector )
-                .children()
-                .eq(this.currentGuess)
-                .html( this.getLines()[this.currentGuess]);
+            //reveal a new square
 
-            //highlight next
+        
+
+            //highlight next guess box
             $( ".guess" )
                 .eq(this.currentGuess)
                 .addClass('guess-active');
@@ -497,7 +405,7 @@ var game = {
     showCompletedPage : function(){
         console.log("Running showCompletedPage");
         
-        $('.summary-gamenumber').text("Lyricle #" + this.gameData.id);
+        $('.summary-gamenumber').text(this.gameName +  "#" + this.gameData.id);
         $('.summary-trackname').text(this.gameData.FullTrackName);
         $('.summary-scoresummary').empty().append( this.getScoreSummary() );
 
@@ -508,7 +416,7 @@ var game = {
     
        // $('.summary-stats').text('[Stats Button]');
         //$('.summary-share').text('[Share Button]');
-        $('.summary-countdownmessage').text('Next Lyricle in:');
+        $('.summary-countdownmessage').text('Next ' + this.gameName +  ' in:');
         
         let countDown = $('.summary-countdown');
         this.updateCountdown( countDown );
@@ -632,9 +540,9 @@ var game = {
     getShareInformation : function(){
 
         //* if game isnt complete then just share generic info
-        let text = "Lyricle #" + this.gameData.id + " " + String(this.gameState.score).toUpperCase() + "/" +this.maxGuesses + "\r\n"
+        let text = this.gameName + "#" + this.gameData.id + " " + String(this.gameState.score).toUpperCase() + "/" +this.maxGuesses + "\r\n"
                     + this.getScoreSummary(true) + "\r\n"
-                    + "https://lyricle.isnow.online"
+                    + this.gameURL;
 
         return text;
         

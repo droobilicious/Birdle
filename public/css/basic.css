@@ -82,6 +82,7 @@
     /*flex-basis: 2.5rem;*/
     background-color:var(--color-header-background);
     color:var(--color-header-text);
+    height:2rem;
   }
 
   #headerContent{ }
@@ -103,7 +104,7 @@
 
   }
 
-  #header svg{
+  #header2 svg{
     padding:0 0.25rem;
     margin:0;
   }

@@ -114,8 +114,8 @@ $(document).ready(function(){
     const g = Object.create(game); 
     g.start({
         gameDataLocation : "./config1.json",
-        localStorageName : "lyricleGames2",
-        lyricsSelector : '#lyricsContent',
+        gameCanvasSelector : '#gamecanvas',
+        localStorageName : "birdle1",
         guessListSelector : '#guessWrapper',
         searchWrapper : '#searchWrapper',
         guessButtonsWrapper : '#buttonsWrapper',
