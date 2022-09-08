@@ -17,9 +17,10 @@ var game = {
     gameName : "Birdle",
     gameURL : "https://birdle.isnow.online",
     imageBasePath : "gameimages/",
+    imageParts : null,
     stats : null,
     currentGuess : 0, 
-    maxGuesses : 5,
+    maxGuesses : 6,
     start : function(config){
         console.log("Running start()");
         let _this = this;
@@ -53,18 +54,19 @@ var game = {
                 _this.showCompletedPage();
 
                 //display full image
-                _this.displayCanvas();
+                _this.loadImage( function(){ _this.revealImage() } );
             }
             //game was not finished partial game
             else{  
                 
+                //update guess button if this is the last guess
                 _this.currentGuess = _this.gameState.guessList.length;
                 if (_this.currentGuess >= _this.maxGuesses-1){
                     $( _this.gameConfig.skipButtonSelector ).val("Give Up");
                 }
 
                 //display image so far
-                _this.displayCanvas();
+                _this.loadImage( function(){ _this.revealImage() } );
                 _this.displayGuesses();
 
             }
@@ -164,65 +166,119 @@ var game = {
         localStorage.setItem( this.gameConfig.localStorageName, JSON.stringify(gameHistory) );
 
     },
-    displayCanvas : function(){
-        console.log("Running displayCanvas");
+    getRevealOrder : function(){
+
+        let n = 6
+        let d = new Date();
+        let seed = d.setHours(0, 0, 0, 0);
+        let arr = [...Array(n).keys() ];
+        return shuffle( arr, seed );
+
+
+        function shuffle(array, seed) {               
+            let copy = [], n = array.length, i;
+            
+            // While there remain elements to shuffle…
+            while (n) {
+              i = Math.floor(random(seed) * n--);  // Pick a remaining element…      
+              copy.push(array.splice(i, 1)[0]);    // Move it to the new array.
+              ++seed;
+            }
+          
+            return copy;
+          }
+          
+        
+        function random(seed) {
+          var x = Math.sin(seed++) * 10000; 
+          return x - Math.floor(x);s
+        }   
+
+
+    },
+    loadImage : function(callback){
+        console.log("Running loadImage")
         let _this = this;
 
-
-        //load image if not already loaded
         let FullImagePath = this.imageBasePath + this.gameData.image
         console.log("Loading image " +  FullImagePath)
-        var image = new Image();
-        
-     
+        let tempImage= new Image() ;
+        tempImage.src = FullImagePath;
+        tempImage.onload = function(){ 
 
-        image.onload = function(){
-            console.log("The image was loaded");
             let numColsToCut = 3;
             let numRowsToCut = 2
             console.log("Image width: " + this.width);
 
             let widthOfOnePiece = this.width / numColsToCut;
             let heightOfOnePiece = this.height / numRowsToCut;
-
-            var imagePieces = [];
-            for(var x = 0; x < numColsToCut; ++x) {
-                for(var y = 0; y < numRowsToCut; ++y) {
-                    var canvas = document.createElement('canvas');
+            
+            _this.imageParts = []
+            for(let row = 0; row < numRowsToCut; ++row) {
+                for(let col = 0; col < numColsToCut; ++col) {
+                    let canvas = document.createElement('canvas');
                     canvas.width = widthOfOnePiece;
                     canvas.height = heightOfOnePiece;
-                    var context = canvas.getContext('2d');
+                    let context = canvas.getContext('2d');
                     //draw image with offset
-                    context.drawImage(image, x * widthOfOnePiece, y * heightOfOnePiece, widthOfOnePiece, heightOfOnePiece, 0, 0, canvas.width, canvas.height);
-                    imagePieces.push(canvas.toDataURL());
+                    context.drawImage( tempImage, 
+                                        col * widthOfOnePiece, row * heightOfOnePiece, //offset on source
+                                        widthOfOnePiece, heightOfOnePiece, //width, height from source
+                                        0, 0,  //offset on destination
+                                        canvas.width, canvas.height //width, height, on destination
+                                        );
+                    _this.imageParts.push( canvas.toDataURL());
                 }
             }
 
-
-            // load one piece onto the page
-            console.log("loading image piece " + imagePieces[0]);
-
+            //set grid
             $( _this.gameConfig.gameCanvasSelector ).css( {
                 'display' : 'inline-grid',
                 'grid-gap': '1px',
                 'grid-template-columns' : 'repeat(' + numColsToCut + ', 1fr)'
             });
+
             
-            $( "<img>" ).attr("src", imagePieces[0]).appendTo(  _this.gameConfig.gameCanvasSelector );
-            $( "<img>" ).attr("src", imagePieces[2]).appendTo(  _this.gameConfig.gameCanvasSelector );
-            $( "<img>" ).attr("src", imagePieces[4]).appendTo(  _this.gameConfig.gameCanvasSelector );
-            $( "<img>" ).attr("src", imagePieces[1]).appendTo(  _this.gameConfig.gameCanvasSelector );
-            $( "<img>" ).attr("src", imagePieces[3]).appendTo(  _this.gameConfig.gameCanvasSelector );
-            $( "<img>" ).attr("src", imagePieces[5]).appendTo(  _this.gameConfig.gameCanvasSelector );
-        };
-
-
-        image.src = FullImagePath;
+            console.log("imageParts count: " + _this.imageParts.length );
+            console.log("Running callback");
+            callback();
+        }
 
 
 
 
 
+    },
+    revealImage : function(){
+        console.log("Running revealImage");
+        let _this = this;
+
+        console.log("guess number:" + this.currentGuess);
+        console.log("imageParts count: " + this.imageParts.length );
+        //console.log("imageParts count: " + this.imageParts[0]);
+
+        let reveaulOrder = this.getRevealOrder();
+        console.log("Reveal order: " + reveaulOrder.join(","));
+        
+
+        $( "<img>" ).attr("src", _this.imageParts[0]).appendTo(  _this.gameConfig.gameCanvasSelector );
+        $( "<img>" ).attr("src", _this.imageParts[1]).appendTo(  _this.gameConfig.gameCanvasSelector );
+        $( "<img>" ).attr("src", _this.imageParts[2]).appendTo(  _this.gameConfig.gameCanvasSelector );
+        $( "<img>" ).attr("src", _this.imageParts[3]).appendTo(  _this.gameConfig.gameCanvasSelector );
+        $( "<img>" ).attr("src", _this.imageParts[4]).appendTo(  _this.gameConfig.gameCanvasSelector );
+        $( "<img>" ).attr("src", _this.imageParts[5]).appendTo(  _this.gameConfig.gameCanvasSelector );
+
+        
+                     
+
+
+
+    },
+    chopImage : function(){
+        console.log("Running chopImage");
+        
+
+        
     },
     displayGuesses : function(){
         console.log("Running displayGuesses");
@@ -303,7 +359,7 @@ var game = {
             
             this.saveGameState();
             this.showCompletedPage();
-            //display the full image
+            this.revealImage(); //display the full image
 
             this.displayStats();
             this.onComplete(); 
@@ -313,7 +369,7 @@ var game = {
             this.saveGameState();
 
             //reveal a new square
-
+            this.revealImage();
         
 
             //highlight next guess box
