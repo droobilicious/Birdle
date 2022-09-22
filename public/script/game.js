@@ -1,4 +1,4 @@
-let debugMode = true;
+let debugMode = false;
 
 if (debugMode === false){ 
     console.log = function() {}
@@ -416,7 +416,7 @@ var game = {
             thisGuess.status = "skipped";
             newClass = 'guess-bg-skipped';
         }
-        else if (guess == this.gameData.Name) //correct guess
+        else if (guess.toUpperCase() == this.gameData.Name.toUpperCase()) //correct guess
         {
             thisGuess.status  = "correct";
             this.gameState.hasWon = true;

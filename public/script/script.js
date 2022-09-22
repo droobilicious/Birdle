@@ -144,7 +144,8 @@ $(document).ready(function(){
                     resultDisplaysLimit : 100,
                     items : items,
                     submitSelector : '#btnSubmitGuess',
-                    onlyAllowItems : true //dont allow to be submitted that arent in the options list
+                    onlyAllowItems : true, //dont allow to be submitted that arent in the options list
+                    allowCaseDeviation : true //can submit even if not in the same case as the actual item
                 })
             })
             .fail(function(){

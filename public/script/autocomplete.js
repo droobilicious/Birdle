@@ -22,6 +22,9 @@ $.fn.searchoptions = function(config){
 
         //sort items
         config.items = config.items.sort();
+
+        //items to use in comparisson
+        config.compareItemsList = (config.allowCaseDeviation) ? config.items.map(x => x.toUpperCase()) : config.items;
         
         let matchOnEachWord = true;
 
@@ -103,9 +106,13 @@ $.fn.searchoptions = function(config){
 
             // If search value is valid then enable submit button
             if (config.onlyAllowItems){
-                if (config.items.indexOf( searchString ) > -1){
+                
+                let lookForString = (config.allowCaseDeviation) ? searchString.toUpperCase() : searchString;
+                
+                if (config.compareItemsList.indexOf( lookForString ) > -1){
                     //item found
                     $( config.submitSelector ).attr("disabled", false);
+
                 }else{
                     //item not found
                     $( config.submitSelector ).attr("disabled", true);
