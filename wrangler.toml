@@ -12,7 +12,7 @@ main="./workers-site/index.js"
 
 
 kv-namespaces = [
-    #{ binding = "gamedata_1", id = "9289b8a9cadd4123a54a8ee243c7baa0", preview_id = "e62d9b0ea478415abeaf90ce28f30f33" }
+    { binding = "gamedata_1", id = "dbbd629b39f44de99a28bbabfb71f2a2", preview_id = "1035d4520db3461fab3915b48cfe7356" }
 ]
 
 

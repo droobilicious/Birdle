@@ -115,7 +115,7 @@ $(document).ready(function(){
     g.start({
         gameDataLocation : "./config1.json",
         gameCanvasSelector : '#gamecanvas',
-        localStorageName : "birdle1",
+        localStorageName : "birdleX",
         guessListSelector : '#guessWrapper',
         searchWrapper : '#searchWrapper',
         guessButtonsWrapper : '#buttonsWrapper',
@@ -141,7 +141,7 @@ $(document).ready(function(){
                 //configure autocomplete    
                 //console.log("songList length " + songList.length);
                 $( '#txtGuess' ).searchoptions({
-                    resultDisplaysLimit : 6,
+                    resultDisplaysLimit : 100,
                     items : items,
                     submitSelector : '#btnSubmitGuess',
                     onlyAllowItems : true //dont allow to be submitted that arent in the options list

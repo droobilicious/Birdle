@@ -4,7 +4,7 @@
     --color-bg-correct: #1d7e05;
     --color-bg-partcorrect: rgb(238, 159, 0);
     --color-bg-skipped: #888;
-    --color-bg-notused: white;
+    --color-bg-notused: #1d7e05; /*not used is success in this game*/
 
   }
   
@@ -15,8 +15,25 @@
   #gamecontent { }
 
   #gamecanvas {
-    border:solid 1px red;
+    /*border:solid 1px red;*/
+    margin-bottom:0.2rem;
   }
+
+  #gamecanvas img{
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+  }
+
+  .blanktile{
+    background-color:rgb(161, 161, 161);
+  }
+
+  .finalimage img{
+    
+    max-height:250px;
+  }
+
+
 
 
   #guesses { }
@@ -33,7 +50,7 @@ guesses
   #guessWrapper {
 
     overflow:auto;
-    width:75%;
+    width:65%;
    
   }
 
@@ -42,10 +59,10 @@ guesses
 
     border:solid 1px black;
     padding: 0.4em 0.5rem;
-    margin: 0.3rem 0;  
+    margin: 0.2rem 0;  
 
-    font-size: 0.9rem;
-    height:1.1rem;
+    font-size: 0.8rem;
+    height:0.9rem;
 
     font-family:arial;
     color:white;
@@ -148,19 +165,27 @@ game buttons
 
 
 /* input[type=button], */
-   .btnSupport, .btnShare, .btnPlay{
+   .btnSupport, .btnShare, .btnPlay, .btnStats{
   
-    display: block;
+    display: flex;
+    flex-direction: row;
+    justify-content:center; 
+
     margin: 0.7rem auto;
     text-transform: uppercase;
     padding: 0.5rem;
     text-indent: 0.25em;
+    text-align: center;
     letter-spacing: 0.2em;
     font-weight: 600;
     font-size: 0.875rem;
     line-height: 1.25rem;
     padding: 0.3rem 0.6rem;
     
+  }
+
+  .btnStats > * {
+    flex:1 1 0rem; 
   }
 
 
@@ -174,15 +199,14 @@ game summary
 */
 
   #summaryWrapper>div{
-    padding:0.2rem;
+    padding:0.1rem;
     font-family: 'PT Sans', sans-serif;
 
   }
 
 
   .score-wrapper {
-      display:flex;
-      justify-content: center;
+
   }
 
 
@@ -190,12 +214,12 @@ game summary
       width:1.5em;
       height:1.5em;
       border:solid 1px black;
-      margin:0.1em;
+      margin:0.05em;
   }
 
-  .summary-trackname{
+  .summary-answer{
     font-weight: 600;
-    
+
   }
 
   .summary-countdownmessage{  
@@ -225,6 +249,12 @@ game summary
     
     
   }
+
+  .summary-buttons button{
+    margin:0 1rem;
+
+  }
+
 
   /*
   Stats

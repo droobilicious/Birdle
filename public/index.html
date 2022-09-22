@@ -12,7 +12,7 @@
         <meta property="og:description" content="The daily bird guessing game">
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://birdle.isnow.online">
-        <meta property="og:image" content="https://birdle..isnow.online/og.png">
+        <meta property="og:image" content="https://birdle.isnow.online/og.png">
       
         <meta name="theme-color" content="#121212">
       
@@ -64,7 +64,7 @@
           <svg class="btnLove" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
         </div>
          <div class="hl2 header-title center-text ">
-          <img src="og.png" height="150">
+          <img src="images/header.png">
          </div>
          <div class="hl3 flex-1 flexbox-row fb-right">
             
@@ -93,7 +93,7 @@
 
             <div id="search" class="hl3 flex-none flexbox-row fb-center">
               <div id="searchWrapper" class="flex-1">
-                <input id="txtGuess" type="search" spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="off" placeholder="Search for bird...">
+                <input id="txtGuess" type="search" spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="off" placeholder="Search for a bird...">
               </div>
             </div>
                
@@ -108,22 +108,20 @@
             <div id="summary" class="hl4 flex-none flexbox-row fb-center hidden">
               <div id="summaryWrapper" class="hl1 flex-1 flexbox-col fb-x-center">
                 <div class="summary-gamenumber"></div>
-                <div class="summary-trackname"></div>
+                <div class="summary-answer"></div>
                 <div class="summary-scoresummary"></div>
                 <div class="summary-message"></div>
-                <div class="summary-share">
+                <div class="summary-buttons flexbox-row fb-between hl1">
+
+                  <button class="btnStats">Stats
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  </button>
+
                   <button class="btnShare">Share
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                   </button>
                 </div>
-             
-                <div class="summary-stats btnStats" >
-                  <div>Stats</div>
-                  <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                  </div>
-                </div>
-     
+                  
                 <div class="summary-countdownmessage"></div>
                 <div class="summary-countdown"></div>
                 <div class="summary-support">
@@ -203,7 +201,11 @@
       </div>
 
       <div class="overlay-body">
-        <div>Welcome to Birdle.</div>
+        <div>Welcome to Birdle - The bird guessing game.<br><br>This game is ad-free and created for your pleasure.  Please feel free to share and support using the heart icon</div>
+        <div>Created with html/jquery</div>
+        <div><a href="https://www.flaticon.com/free-icons/bird" title="bird icons">Bird icons created by Freepik - Flaticon</a></div>
+        <div><a href="https://isnow.online/" target="_blank">Other Apps</a></div>
+        <div><a href="https://twitter.com/isnow_online?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @isnow_online</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></div>
       </div>
 
     </div>
@@ -221,12 +223,13 @@
         </div>
       </div>
       
-      <div class="overlay-body  flexbox-col fb-x-center">
-        <div>Enjoying Birdle? Please support us, or just buy us a coffee to help us make more fun apps :)</div>
+      <div class="overlay-body flexbox-col fb-x-center">
+        <div>Enjoying Birdle? We are ad-free and would love if you would support us, or just buy us a coffee to help us make more fun apps :)</div>
         <div>
           <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
           <script type='text/javascript'>kofiwidget2.init('Support Us on Ko-fi', '#29abe0', 'M4M4D8H7M');kofiwidget2.draw();</script> 
         </div>   
+        <div><a href="https://twitter.com/isnow_online?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @isnow_online</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></div>
       </div>
 
     </div>

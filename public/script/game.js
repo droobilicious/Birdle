@@ -11,13 +11,20 @@ if (debugMode === false){
 
 // Game code
 var game = {
-    gameConfig : null,   //settings passed to the constructor
-    gameData : null,  //data for this individual days game /config
+    gameConfig : null, //settings passed to the constructor
+    gameData : null,   //data for this individual days game /config
     gameState : null,  //info about the game state, previous guesses, whether the game has been finished etc
     gameName : "Birdle",
     gameURL : "https://birdle.isnow.online",
     imageBasePath : "gameimages/",
     imageParts : null,
+    tilesOnShortSide : 2,  
+    tilesOnLongSide : 3, 
+    columns : null,  //calculated
+    rows : null, //calculated
+    destinationBlockWidth : null, //calculated
+    destinationBlocHeight : null, //calculated
+    isPortrait : false, 
     stats : null,
     currentGuess : 0, 
     maxGuesses : 6,
@@ -51,10 +58,15 @@ var game = {
             //see if game was already finished
             if (_this.gameState.hasFinished === true){
                 //the game was already completed
-                _this.showCompletedPage();
+                
+                //load the full image then show the completed page
+                _this.loadImage( 
+                    function(){
+                        _this.revealImage();
+                        _this.showCompletedPage();
+                    } );
 
-                //display full image
-                _this.loadImage( function(){ _this.revealImage() } );
+
             }
             //game was not finished partial game
             else{  
@@ -125,7 +137,8 @@ var game = {
                 guessList : [],
                 hasFinished : false,
                 hasWon : false,
-                score : 'x'
+                score : 'x',
+                revealOrder : this.getRevealOrder()
             }
             
         }else{
@@ -135,7 +148,7 @@ var game = {
 
 
         this.gameState = thisGame;
-
+        
 
     },
     saveGameState : function(){
@@ -161,10 +174,73 @@ var game = {
         }
 
         //store the updated gameHistory
-        //console.log("gameState: " + JSON.stringify(this.gameState));
-       // console.log("saving gameHistory: " + JSON.stringify(gameHistory));
+        console.log("gameState: " + JSON.stringify(this.gameState));
+        console.log("saving gameHistory: " + JSON.stringify(gameHistory));
         localStorage.setItem( this.gameConfig.localStorageName, JSON.stringify(gameHistory) );
 
+    },
+    loadImage : function(callback){
+        console.log("Running loadImage")
+        let _this = this;
+
+        let FullImagePath = this.imageBasePath + this.gameData.image
+        console.log("Loading image " +  FullImagePath)
+
+        let tempImage= new Image() ;
+        tempImage.src = FullImagePath;
+
+        //set onload function
+        tempImage.onload = function(){ 
+
+            //check if portrait or landscape
+            _this.isPortrait = (this.height > this.width);
+            console.log("isPortrait: " +  _this.isPortrait );
+
+            //calculdate tile numbers
+            console.log("columns : " +   _this.cols  + " Rows: " + _this.rows );
+            _this.cols = (_this.isPortrait) ? _this.tilesOnShortSide : _this.tilesOnLongSide;
+            _this.rows = (_this.isPortrait) ? _this.tilesOnLongSide : _this.tilesOnShortSide;
+            
+            //calculate width of pieces
+            //let maxwidth = 300 ;//this.width; //300;
+           // let maxheight = maxwidth *  (this.height / this.width); // maintain asepect ratio
+
+            let maxheight = 200;
+            let maxwidth = maxheight *  (this.width / this.height); // maintain aspect ratio
+
+            let sourceBlockWidth = this.width /  _this.cols ;
+            let sourceBlockHeight = this.height / _this.rows ;
+
+            _this.destinationBlockWidth = maxwidth / _this.cols ;
+            _this.destinationBlocHeight = maxheight / _this.rows ;
+
+            
+            _this.imageParts = []
+            
+            //loop rows and columns
+            for(let row = 0; row < _this.rows ; ++row) {
+                for(let col = 0; col <  _this.cols ; ++col) {
+                    let canvas = document.createElement('canvas');
+                    canvas.width = _this.destinationBlockWidth;
+                    canvas.height = _this.destinationBlocHeight;
+                    let context = canvas.getContext('2d');
+                    //draw image with offset
+                    context.drawImage( tempImage, 
+                                        col * sourceBlockWidth, row * sourceBlockHeight, //offset on source
+                                        sourceBlockWidth, sourceBlockHeight, //width, height from source
+                                        0, 0,  //offset on destination
+                                        canvas.width, canvas.height //width, height, on destination
+                                        );
+                    _this.imageParts.push( canvas.toDataURL());
+                }
+            }
+
+
+            
+            console.log("imageParts count: " + _this.imageParts.length );
+            console.log("Running callback");
+            callback();
+        }
     },
     getRevealOrder : function(){
 
@@ -196,59 +272,6 @@ var game = {
 
 
     },
-    loadImage : function(callback){
-        console.log("Running loadImage")
-        let _this = this;
-
-        let FullImagePath = this.imageBasePath + this.gameData.image
-        console.log("Loading image " +  FullImagePath)
-        let tempImage= new Image() ;
-        tempImage.src = FullImagePath;
-        tempImage.onload = function(){ 
-
-            let numColsToCut = 3;
-            let numRowsToCut = 2
-            console.log("Image width: " + this.width);
-
-            let widthOfOnePiece = this.width / numColsToCut;
-            let heightOfOnePiece = this.height / numRowsToCut;
-            
-            _this.imageParts = []
-            for(let row = 0; row < numRowsToCut; ++row) {
-                for(let col = 0; col < numColsToCut; ++col) {
-                    let canvas = document.createElement('canvas');
-                    canvas.width = widthOfOnePiece;
-                    canvas.height = heightOfOnePiece;
-                    let context = canvas.getContext('2d');
-                    //draw image with offset
-                    context.drawImage( tempImage, 
-                                        col * widthOfOnePiece, row * heightOfOnePiece, //offset on source
-                                        widthOfOnePiece, heightOfOnePiece, //width, height from source
-                                        0, 0,  //offset on destination
-                                        canvas.width, canvas.height //width, height, on destination
-                                        );
-                    _this.imageParts.push( canvas.toDataURL());
-                }
-            }
-
-            //set grid
-            $( _this.gameConfig.gameCanvasSelector ).css( {
-                'display' : 'inline-grid',
-                'grid-gap': '1px',
-                'grid-template-columns' : 'repeat(' + numColsToCut + ', 1fr)'
-            });
-
-            
-            console.log("imageParts count: " + _this.imageParts.length );
-            console.log("Running callback");
-            callback();
-        }
-
-
-
-
-
-    },
     revealImage : function(){
         console.log("Running revealImage");
         let _this = this;
@@ -257,28 +280,83 @@ var game = {
         console.log("imageParts count: " + this.imageParts.length );
         //console.log("imageParts count: " + this.imageParts[0]);
 
-        let reveaulOrder = this.getRevealOrder();
-        console.log("Reveal order: " + reveaulOrder.join(","));
-        
+        //let revealOrder = this.getRevealOrder();
+        let revealOrder = this.gameState.revealOrder;
+        console.log("Reveal order: " + revealOrder.join(","));
 
-        $( "<img>" ).attr("src", _this.imageParts[0]).appendTo(  _this.gameConfig.gameCanvasSelector );
-        $( "<img>" ).attr("src", _this.imageParts[1]).appendTo(  _this.gameConfig.gameCanvasSelector );
-        $( "<img>" ).attr("src", _this.imageParts[2]).appendTo(  _this.gameConfig.gameCanvasSelector );
-        $( "<img>" ).attr("src", _this.imageParts[3]).appendTo(  _this.gameConfig.gameCanvasSelector );
-        $( "<img>" ).attr("src", _this.imageParts[4]).appendTo(  _this.gameConfig.gameCanvasSelector );
-        $( "<img>" ).attr("src", _this.imageParts[5]).appendTo(  _this.gameConfig.gameCanvasSelector );
+        //set grid
+        $( _this.gameConfig.gameCanvasSelector ).css( {
+            'display' : 'inline-grid',
+            'grid-gap': '1px',
+            'grid-template-columns' : 'repeat(' + this.cols + ', 1fr)'
+        });
+
+        
+        //check if the game has finished alreayd
+        if (this.gameState.hasFinished)
+        {
+            //reveal whole image
+            let FullImagePath = this.imageBasePath + this.gameData.image
+            $( _this.gameConfig.gameCanvasSelector )
+                        .empty()                      
+                        .removeAttr('style')
+                        .addClass('finalimage')
+                        .append(
+                            $( "<img>" ).attr("src", FullImagePath)
+                        )
+        }
+        //if the game has not finished...
+        else{
+
+            //reveal the next image tile
+            for( let tile = 0; tile < (this.cols * this.rows); ++tile){
+            
+                //console.log("Checking tile ", tile);
+
+                if (revealOrder.slice(0, _this.currentGuess).includes(tile)){
+                   
+                    
+                    if ($(_this.gameConfig.gameCanvasSelector ).children().eq(tile).length > 0)
+                    {
+                        //element already exists. replace it
+                        //if already image then dont replace
+                        if ($(_this.gameConfig.gameCanvasSelector ).children().eq(tile).attr("src") !=  _this.imageParts[tile])
+                        {
+                            //console.log("  Setting to image");            
+                            $(_this.gameConfig.gameCanvasSelector ).children().eq(tile).replaceWith(
+                                $( "<img>" ).attr("src", _this.imageParts[tile])    
+                            );
+                        }
+                        
+
+                    }else{
+                        //console.log("     Element doesnt exist. Adding image");
+                        $( "<img>" ).attr("src", _this.imageParts[tile]).appendTo(  _this.gameConfig.gameCanvasSelector );
+                   }
+
+                }else{
+
+                    if ($(_this.gameConfig.gameCanvasSelector ).children().eq(tile).length == 0)
+                    {
+                        //console.log("   Adding blank div");
+                        $( "<div>" )
+                            .addClass('blanktile')
+                            .css( {'width' : this.destinationBlockWidth, 'height' : this.destinationBlocHeight })
+                            .appendTo(  _this.gameConfig.gameCanvasSelector );
+                    }
+                    
+                }
+
+
+            }
+
+        }
 
         
                      
 
 
 
-    },
-    chopImage : function(){
-        console.log("Running chopImage");
-        
-
-        
     },
     displayGuesses : function(){
         console.log("Running displayGuesses");
@@ -320,17 +398,44 @@ var game = {
         
         let displayText = guess;
 
+        //check for partial guess
+        let partiallyCorrect = false;
+        let guessWords = guess.toUpperCase().match(/\b(\w+)\b/g);
+        let answerWords = this.gameData.Name.toUpperCase().match(/\b(\w+)\b/g);
+        let matchedWords = [];
+        //Do any of the words in the guess appear in the actual answer
+        //we'll start with just highlighting full words.  Maybe add more complexity later
+        if (guessWords instanceof Array){
+            matchedWords = guessWords.filter(x => answerWords.includes(x));
+        }
+
+
+
         if (guess == '') //skipped
         {
             thisGuess.status = "skipped";
             newClass = 'guess-bg-skipped';
         }
-        else if (guess == this.gameData.answer) //correct guess
+        else if (guess == this.gameData.Name) //correct guess
         {
             thisGuess.status  = "correct";
             this.gameState.hasWon = true;
             this.gameState.score = this.currentGuess + 1;
             newClass = 'guess-bg-correct';
+
+        }
+        else if (matchedWords.length > 0 ) //partially correct guess (some words are correct)
+        {
+            thisGuess.status = "partcorrect";
+            newClass = 'guess-bg-partcorrect';
+
+            //highlight correct words
+
+           /* let remainingText = guess.substr( this.gameData.Artist.length + 3, guess.length - (this.gameData.Artist.length + 3) );
+            console.log("full len: " + this.gameData.FullTrackName.length);
+            console.log("Remaining text: " + remainingText);
+            displayText = "<span class='guess-partcorrect'>" + this.gameData.Artist + "</span> - "  + remainingText;
+             */           
 
         }
         else{ //incorrect guess
@@ -389,7 +494,9 @@ var game = {
         }
         
     },
-    onComplete : function(result){    },
+    onComplete : function(result){   
+
+    },
     updateCountdown : function(element){
  
         const getCountdown = function()
@@ -417,52 +524,80 @@ var game = {
     },
     getScoreSummary : function(unicode=false){
         console.log("Running getScoreSummary");
-       
-        let output = null;
+        let _this = this;
 
         let fullGuessList = this.gameState.guessList.map(item => item.status);
         for (let i=0;i< (this.maxGuesses - this.gameState.guessList.length );i++){
             fullGuessList.push( 'notused' );  
         }
+        
+        orderedGuessList = fullGuessList.map((num,index) => fullGuessList[ this.gameState.revealOrder.indexOf(index) ]  )
+        
+        //this.gameState.revealOrder.map((x) => fullGuessList[ x ]);
 
-        console.log("fullGuessList: " + JSON.stringify(fullGuessList));
+        console.log("getScoreSummary: fullGuessList: ", JSON.stringify(fullGuessList));
+        console.log("getScoreSummary: orderedGuessList: ", JSON.stringify(orderedGuessList));
+        console.log("getScoreSummary: rows/cols: ", this.rows + ", " +  this.cols);
 
-        if (unicode === true)
-        {
-            
-            let unicodeArray = fullGuessList.map(item => {
-                return item.replace('incorrect', '🟥')
-                            .replace('partcorrect', '🟨')  //🟧     
-                            .replace('correct', '🟩')
-                            .replace('skipped', '⬛')
-                            .replace('notused', '⬜');
+        let output = null;
+
+        if (unicode){
+
+            output = orderedGuessList.map((item, index) => {
+
+                item = item.replace('incorrect', '🟥')
+                    .replace('partcorrect', '🟨')  //🟧     
+                    .replace('correct', '🟩')
+                    .replace('skipped', '⬛')
+                    .replace('notused', '🟩'); //⬜  for this game not used is success
                 
-            });
+                if (((index+1) % _this.cols ) == 0 && index != orderedGuessList.length-1){
+                    item = item + "\r\n";
+                }   
+                
+                return item;
+            }).join("");
 
-            console.log("unicodeArray: " + JSON.stringify(unicodeArray));
-
-            output = unicodeArray.join(''); 
-            console.log("output: " + output);
-
+            console.log("unicode", output);
         }else{
-            output = $( '<div>' ).addClass('score-wrapper');
 
-            fullGuessList.forEach(guessStatus => {
-                let newClass = "guess-bg-" + guessStatus
-                console.log("adding score box");
-                $('<div>').addClass('scorebox').addClass(newClass).appendTo(output);       
-            });
-      
+            output = $( '<div>' )
+                    .addClass('score-wrapper')
+                    .css( {
+                        'display' : 'inline-grid',
+                        'grid-gap': '1px',
+                        'grid-template-columns' : 'repeat(' + this.cols + ', 1fr)'
+                    });
+
+            for(let i=0; i < orderedGuessList.length; ++i)
+            {
+            
+                //    let newClass = "guess-bg-" + fullGuessList[ this.gameState.revealOrder[i] ];
+                let newClass = "guess-bg-" + orderedGuessList[ i];
+                console.log("Adding div with class ", newClass);
+                $('<div>').addClass('scorebox').addClass(newClass).appendTo(output);    
+
+    
+            }
+        
         }
 
+        
 
         return output;
     },
     showCompletedPage : function(){
         console.log("Running showCompletedPage");
         
-        $('.summary-gamenumber').text(this.gameName +  "#" + this.gameData.id);
-        $('.summary-trackname').text(this.gameData.FullTrackName);
+        $('.summary-gamenumber').text(this.gameName +  " #" + this.gameData.id);
+        $('.summary-answer').empty().append(
+            $("<a>", {
+                title: this.gameData.URL,
+                href: this.gameData.URL,
+                target: '_blank'
+                }).text(this.gameData.Name)
+        );
+            
         $('.summary-scoresummary').empty().append( this.getScoreSummary() );
 
         (this.gameState.hasWon === true) ? 
@@ -596,7 +731,7 @@ var game = {
     getShareInformation : function(){
 
         //* if game isnt complete then just share generic info
-        let text = this.gameName + "#" + this.gameData.id + " " + String(this.gameState.score).toUpperCase() + "/" +this.maxGuesses + "\r\n"
+        let text = this.gameName + " #" + this.gameData.id + " " + String(this.gameState.score).toUpperCase() + "/" +this.maxGuesses + "\r\n"
                     + this.getScoreSummary(true) + "\r\n"
                     + this.gameURL;
 

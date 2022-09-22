@@ -19,6 +19,8 @@
    border:solid 2px;
    border-color:var(--color-ac-border); 
 
+
+
 }
 
 
@@ -45,7 +47,8 @@
    border-color:var(--color-ac-border);  
    border-bottom:0px;
 
-
+   max-height:200px;
+   overflow-y:scroll;
    
 }
 
