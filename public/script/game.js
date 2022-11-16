@@ -6,7 +6,12 @@ if (debugMode === false){
 
 
 
-// * arrow functions would preserve this scope below
+/*
+
+* arrow functions would preserve this scope below
+* swith to ES6 class
+
+*/
 
 
 // Game code
@@ -64,6 +69,7 @@ var game = {
                     function(){
                         _this.revealImage();
                         _this.showCompletedPage();
+                        _this.onComplete();
                     } );
 
 
@@ -272,27 +278,26 @@ var game = {
 
 
     },
+    /*
+        this function 
+         -reveals the full image if the game is over
+         -reveals all the currently revealed images if it's part way through
+         -reveals the next image tile if a guess has been submitted
+
+    */
     revealImage : function(){
         console.log("Running revealImage");
+
+
+
         let _this = this;
 
         console.log("guess number:" + this.currentGuess);
         console.log("imageParts count: " + this.imageParts.length );
         //console.log("imageParts count: " + this.imageParts[0]);
 
-        //let revealOrder = this.getRevealOrder();
-        let revealOrder = this.gameState.revealOrder;
-        console.log("Reveal order: " + revealOrder.join(","));
-
-        //set grid
-        $( _this.gameConfig.gameCanvasSelector ).css( {
-            'display' : 'inline-grid',
-            'grid-gap': '1px',
-            'grid-template-columns' : 'repeat(' + this.cols + ', 1fr)'
-        });
-
-        
-        //check if the game has finished alreayd
+   
+        //check if the game has finished already and reveal full image if so
         if (this.gameState.hasFinished)
         {
             //reveal whole image
@@ -305,8 +310,25 @@ var game = {
                             $( "<img>" ).attr("src", FullImagePath)
                         )
         }
+
         //if the game has not finished...
         else{
+
+            /*
+                bit confusing this. refactor with just divs probs
+            */
+       
+            //let revealOrder = this.getRevealOrder();
+            let revealOrder = this.gameState.revealOrder;
+            console.log("Reveal order: " + revealOrder.join(","));
+
+            //set grid
+            $( _this.gameConfig.gameCanvasSelector ).css( {
+                'display' : 'inline-grid',
+                'grid-gap': '1px',
+                'grid-template-columns' : 'repeat(' + this.cols + ', 1fr)'
+            });
+
 
             //reveal the next image tile
             for( let tile = 0; tile < (this.cols * this.rows); ++tile){
@@ -318,8 +340,8 @@ var game = {
                     
                     if ($(_this.gameConfig.gameCanvasSelector ).children().eq(tile).length > 0)
                     {
-                        //element already exists. replace it
-                        //if already image then dont replace
+              
+                        //if this element is already an image then 
                         if ($(_this.gameConfig.gameCanvasSelector ).children().eq(tile).attr("src") !=  _this.imageParts[tile])
                         {
                             //console.log("  Setting to image");            
@@ -330,6 +352,7 @@ var game = {
                         
 
                     }else{
+
                         //console.log("     Element doesnt exist. Adding image");
                         $( "<img>" ).attr("src", _this.imageParts[tile]).appendTo(  _this.gameConfig.gameCanvasSelector );
                    }

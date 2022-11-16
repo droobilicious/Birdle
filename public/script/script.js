@@ -127,7 +127,25 @@ $(document).ready(function(){
     })
    
     g.onComplete = function(){
-        //play song?
+
+        //confetti
+        if (this.gameState.score != 'x')
+        {
+            console.log("Confetti");
+            const confettiLimit = 8;
+            let confettiCount = 0;
+            const interval = setInterval(function() {
+                if (confettiCount < confettiLimit)
+                {
+                    party.confetti(party.Rect.fromScreen());
+                }else{
+                    clearInterval(interval); 
+                }
+                confettiCount++;
+                
+            }, 500);
+        }
+
     }
 
     //load  autocomplete list
