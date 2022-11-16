@@ -67,7 +67,7 @@ var game = {
                 //load the full image then show the completed page
                 _this.loadImage( 
                     function(){
-                        _this.revealImage();
+                        _this.showFinalImage();
                         _this.showCompletedPage();
                         _this.onComplete();
                     } );
@@ -278,18 +278,27 @@ var game = {
 
 
     },
+    showFinalImage : function(){
+
+        //reveal whole image
+        let FullImagePath = this.imageBasePath + this.gameData.image
+        $( this.gameConfig.ImageDivSelector )
+               .empty()                      
+               .removeAttr('style')
+               .addClass('finalimage')
+               .append(
+                   $( "<img>" ).attr("src", FullImagePath)
+               )
+
+    },
     /*
         this function 
-         -reveals the full image if the game is over
          -reveals all the currently revealed images if it's part way through
          -reveals the next image tile if a guess has been submitted
 
     */
     revealImage : function(){
         console.log("Running revealImage");
-
-
-
         let _this = this;
 
         console.log("guess number:" + this.currentGuess);
@@ -297,83 +306,93 @@ var game = {
         //console.log("imageParts count: " + this.imageParts[0]);
 
    
-        //check if the game has finished already and reveal full image if so
-        if (this.gameState.hasFinished)
-        {
-            //reveal whole image
-            let FullImagePath = this.imageBasePath + this.gameData.image
-            $( _this.gameConfig.gameCanvasSelector )
-                        .empty()                      
-                        .removeAttr('style')
-                        .addClass('finalimage')
-                        .append(
-                            $( "<img>" ).attr("src", FullImagePath)
-                        )
-        }
-
-        //if the game has not finished...
-        else{
-
-            /*
-                bit confusing this. refactor with just divs probs
-            */
-       
-            //let revealOrder = this.getRevealOrder();
-            let revealOrder = this.gameState.revealOrder;
-            console.log("Reveal order: " + revealOrder.join(","));
-
-            //set grid
-            $( _this.gameConfig.gameCanvasSelector ).css( {
-                'display' : 'inline-grid',
-                'grid-gap': '1px',
-                'grid-template-columns' : 'repeat(' + this.cols + ', 1fr)'
-            });
+        //if the game image div is empty then setup the blank grid
 
 
-            //reveal the next image tile
-            for( let tile = 0; tile < (this.cols * this.rows); ++tile){
-            
-                //console.log("Checking tile ", tile);
+        /*
+            bit confusing this. refactor with just divs probs
+        */
+    
 
-                if (revealOrder.slice(0, _this.currentGuess).includes(tile)){
-                   
+        
+        //let revealOrder = this.getRevealOrder();
+        let revealOrder = this.gameState.revealOrder;
+        console.log("Reveal order: " + revealOrder.join(","));
+
+        //set grid
+        $(  this.gameConfig.ImageDivSelector ).css( {
+            'display' : 'inline-grid',
+            'grid-gap': '1px',
+            'grid-template-columns' : 'repeat(' + this.cols + ', 1fr)'
+        });
+
+
+        //Reveal all images up to the current guess (unless they have already been revealed)
+        for( let tile = 0; tile <  this.imageParts.length; ++tile){
+        
+          
+            //the current tile is one that should be reveled
+            if (revealOrder.slice(0, this.currentGuess).includes(tile)){
+                console.log("RevealImage: tile ", tile, " should be revealed ");
+
+                //Check if this tile has already been added to the grid
+                if ($( this.gameConfig.ImageDivSelector ).children().eq(tile).length > 0)
+                {
                     
-                    if ($(_this.gameConfig.gameCanvasSelector ).children().eq(tile).length > 0)
+                    console.log("RevealImage: tile ", tile, " has already been added to the grid");
+
+                    //Check if the tile is currently the placeholder, so load the image
+                    if ($( this.gameConfig.ImageDivSelector ).children().eq(tile).attr("src") !=  _this.imageParts[tile])
                     {
-              
-                        //if this element is already an image then 
-                        if ($(_this.gameConfig.gameCanvasSelector ).children().eq(tile).attr("src") !=  _this.imageParts[tile])
-                        {
-                            //console.log("  Setting to image");            
-                            $(_this.gameConfig.gameCanvasSelector ).children().eq(tile).replaceWith(
-                                $( "<img>" ).attr("src", _this.imageParts[tile])    
-                            );
-                        }
                         
+                        console.log("RevealImage: tile ", tile, " is an image but is not set to the revealed image");
+                        $( this.gameConfig.ImageDivSelector ).children().eq(tile)
+                                .removeClass('hiddentile')
+                                .addClass('showntile')
+                                .attr("src", this.imageParts[tile]);
 
-                    }else{
 
-                        //console.log("     Element doesnt exist. Adding image");
-                        $( "<img>" ).attr("src", _this.imageParts[tile]).appendTo(  _this.gameConfig.gameCanvasSelector );
-                   }
-
-                }else{
-
-                    if ($(_this.gameConfig.gameCanvasSelector ).children().eq(tile).length == 0)
-                    {
-                        //console.log("   Adding blank div");
-                        $( "<div>" )
-                            .addClass('blanktile')
-                            .css( {'width' : this.destinationBlockWidth, 'height' : this.destinationBlocHeight })
-                            .appendTo(  _this.gameConfig.gameCanvasSelector );
+                        /*$( this.gameConfig.ImageDivSelector ).children().eq(tile).replaceWith(
+                            $( "<img>" ).attr("src", this.imageParts[tile])    
+                        );*/
                     }
                     
+
                 }
 
+                //tile hasnt yet been added into the grid so add it here with the revealed image
+                else{
+                    console.log("RevealImage: tile ", tile, "  has not yet been added to the grid. Adding");
+
+                    $( "<img>" )
+                        .attr("src",  this.imageParts[tile])
+                        .appendTo(  _this.gameConfig.ImageDivSelector );
+                }
 
             }
 
+            //tiles that should not yet be revealed
+            else{
+
+                console.log("RevealImage: tile ", tile, "  has not yet been revealed.");
+
+                if ($( this.gameConfig.ImageDivSelector ).children().eq(tile).length == 0)
+                {
+                    
+                    console.log("RevealImage: tile ", tile, "  has not yet been revealed and doesnt exit, adding placeholder.");
+
+                    $( "<img>" )
+                        .addClass('hiddentile')
+                        .css( {'width' : this.destinationBlockWidth, 'height' : this.destinationBlocHeight })
+                        .appendTo( this.gameConfig.ImageDivSelector );
+                }
+                
+            }
+
+
         }
+
+        
 
         
                      
@@ -487,8 +506,7 @@ var game = {
             
             this.saveGameState();
             this.showCompletedPage();
-            this.revealImage(); //display the full image
-
+            this.showFinalImage(); 
             this.displayStats();
             this.onComplete(); 
 

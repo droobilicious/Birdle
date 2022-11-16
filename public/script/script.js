@@ -114,7 +114,7 @@ $(document).ready(function(){
     const g = Object.create(game); 
     g.start({
         gameDataLocation : "./config1.json",
-        gameCanvasSelector : '#gamecanvas',
+        ImageDivSelector : '#gameImageDiv',
         localStorageName : "birdleX",
         guessListSelector : '#guessWrapper',
         searchWrapper : '#searchWrapper',

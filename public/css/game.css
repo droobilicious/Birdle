@@ -5,7 +5,7 @@
     --color-bg-partcorrect: rgb(238, 159, 0);
     --color-bg-skipped: #888;
     --color-bg-notused: #1d7e05; /*not used is success in this game*/
-
+    --color-bg-blank: rgb(161, 161, 161);
   }
   
 
@@ -20,21 +20,53 @@
   }
 
   #gamecanvas img{
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s;
+    /*-webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;*/
   }
 
-  .blanktile{
-    background-color:rgb(161, 161, 161);
+  .hiddentile{
+    background-color:var(--color-bg-blank); 
+
+    /*transition:all 3s ease;*/
+    opacity:1;
+    transform: scaleX(-1) rotateY(-180deg);
+
   }
+
+  .showntile{
+    background-color:var(--color-bg-blank); 
+    
+    transition:all 1s ease-out;
+    opacity:1;
+    /*transform:rotate(1800deg);*/
+    transform: scaleX(1) rotateY(0deg);
+    transform-style: preserve-3d;
+
+
+
+  }
+
 
   .finalimage img{
-    
+    /*
+    opacity: 1;
+    animation-name: fadeInOpacity;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in;
+    animation-duration: 1s;*/
+
     max-height:250px;
   }
 
 
-
+  @keyframes fadeInOpacity {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 
   #guesses { }
 
