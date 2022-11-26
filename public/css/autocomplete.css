@@ -89,6 +89,9 @@
    -moz-box-sizing:border-box;
    -webkit-box-sizing:border-box;
    
+   -webkit-appearance: none; /*remove magnifying glass on safari*/
+
+
    text-overflow:ellipsis;
 
    outline:0;
