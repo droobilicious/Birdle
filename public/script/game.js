@@ -105,7 +105,7 @@ var game = {
       
        // console.log("clientDate:" + clientDate);
 
-        return $.post( "/config",{ clientTimeOffset : clientTimeOffset } )
+        return $.get( "/config",{ clientTimeOffset : clientTimeOffset } )
                     .done(function(data) {
                         console.log( "Load completed" );
                         console.log("data: " + JSON.stringify(data));

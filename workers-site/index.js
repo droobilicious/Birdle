@@ -40,18 +40,13 @@ function getGameInfo(req, epoch){
   gameConfig.epoch = epoch;
   gameConfig.epochDate = new Date( gameConfig.epoch.split(' ')[0] ); 
 
-  //Get client date
-  gameConfig.clientTimeOffset = 0;
-  gameConfig.clientDate = new Date();  //default to whatever the server time is
- 
-  if (typeof req != 'undefined') {
-    if (req.method === 'POST') {
+  //Get client time offset
+  gameConfig.clientTimeOffset = 0; 
 
-      if ('clientTimeOffset' in req.body){
-        gameConfig.clientTimeOffset = parseInt(req.body.clientTimeOffset);
-      }
-
-    }
+  const { searchParams } = new URL(req.url)
+  if ( searchParams.has('clientTimeOffset') )
+  {
+    gameConfig.clientTimeOffset = searchParams.get('clientTimeOffset')
   }
 
 
