@@ -38,42 +38,43 @@ function getGameInfo(req, epoch){
 
   //get Epoch timestamp
   gameConfig.epoch = epoch;
-  gameConfig.epochTimestamp = Date.parse( gameConfig.epoch ) /1000;
+  gameConfig.epochDate = new Date( gameConfig.epoch.split(' ')[0] ); 
 
-
-  //Get timeoffset from client (or use our own)
+  //Get client date
   gameConfig.clientTimeOffset = 0;
+  gameConfig.clientDate = new Date();  //default to whatever the server time is
+ 
   if (typeof req != 'undefined') {
     if (req.method === 'POST') {
+
       if ('clientTimeOffset' in req.body){
         gameConfig.clientTimeOffset = parseInt(req.body.clientTimeOffset);
       }
+
     }
   }
 
-  //Limit Offset
-  gameConfig.offsetToUse = 0;
-  if (Number.isInteger(gameConfig.clientTimeOffset)){
-    let maxFowardOffset = (14*60);
-    let maxBackOffset = (12*-60);
-    gameConfig.offsetToUse = Math.min(Math.max( parseInt(gameConfig.clientTimeOffset),maxBackOffset), maxFowardOffset)
-  }
-  
+
   //get UTC and client timestamp
-  gameConfig.UTCTimeStamp = Math.floor(new Date().getTime() / 1000); //(new Date().getTimezoneOffset() *60);
-  gameConfig.clientTimestamp = gameConfig.UTCTimeStamp - (gameConfig.offsetToUse * 60);
+  gameConfig.UTCTimeStamp = new Date().getTime(); 
+  gameConfig.ClientTimeStamp =  gameConfig.UTCTimeStamp - (gameConfig.clientTimeOffset * 60 * 1000);
   
-  //cal days difference (i.e. game number)
-  gameConfig.daysSinceEpoch = Math.floor( (gameConfig.clientTimestamp - gameConfig.epochTimestamp) / (24*60*60));
-  gameConfig.secondsSinceStartOfDay = (gameConfig.clientTimestamp - gameConfig.epochTimestamp) %  (24*60*60);
-  gameConfig.secondsToNextGame = (24*60*60) - gameConfig.secondsSinceStartOfDay;
-  //let timeToNextGame = secondsToString(secondsToNextGame);
+  //How many days since epoch for UTC date
+  let UTCDifference = gameConfig.UTCTimeStamp  - gameConfig.epochDate.getTime();
+  gameConfig.DaysSinceEpochUTC = Math.floor(UTCDifference / (1000 * 3600 * 24));
 
+  let LocalDifference = gameConfig.ClientTimeStamp - gameConfig.epochDate.getTime();
+  gameConfig.DaysSinceEpochLocal = Math.floor(LocalDifference / (1000 * 3600 * 24));
 
+  //Limit days since Epoch to UTC +/- 1
+  let maxDaysAllowed = gameConfig.DaysSinceEpochUTC +1;
+  let minDaysAllowed = gameConfig.DaysSinceEpochUTC -1;
+  gameConfig.DaysSinceEpochLocal = Math.min(Math.max( gameConfig.DaysSinceEpochLocal ,minDaysAllowed), maxDaysAllowed)
+
+  
   //get game number
-  //const gameNumber = Math.floor((Math.random() * 649) + 1);;
-  gameConfig.gameNumber = gameConfig.daysSinceEpoch +1;
-  gameConfig.keyNumber = (gameConfig.daysSinceEpoch % gameConfig.gameCount) + 1;
+  gameConfig.gameNumber = gameConfig.DaysSinceEpochLocal +1;
+  gameConfig.keyNumber = (gameConfig.DaysSinceEpochLocal % gameConfig.gameCount) + 1;
   gameConfig.keyName = "game_" + gameConfig.keyNumber;
 
   return gameConfig;

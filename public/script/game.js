@@ -101,11 +101,11 @@ var game = {
         let _this = this;
 
         let clientDate = new Date();
-        let clientDateOffset = clientDate.getTimezoneOffset() ;
+        let clientTimeOffset = clientDate.getTimezoneOffset() ;
       
        // console.log("clientDate:" + clientDate);
 
-        return $.post( "/config",{ clientTimeOffset : clientDateOffset } )
+        return $.post( "/config",{ clientTimeOffset : clientTimeOffset } )
                     .done(function(data) {
                         console.log( "Load completed" );
                         console.log("data: " + JSON.stringify(data));
